@@ -1,0 +1,135 @@
+"use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.CreateProductsSoldToFarmer = exports.GetProductSoldToFarmer = void 0;
+const DbConnection_1 = require("../db-config/DbConnection");
+const entities = __importStar(require("../entities/Context"));
+const jwt = require("jsonwebtoken");
+const dotenv_1 = __importDefault(require("dotenv"));
+dotenv_1.default.config();
+const ERROR_MESSAGES = {
+    NO_DATA: "No Data",
+    INTERNAL_SERVER: "Internal Server Error",
+};
+const SUCCESS_MESSAGES = {
+    SUCCESS: "Success",
+    ADD_SUCCESS: "Added Successfully",
+    UPDATE_SUCCESS: "Approved Successfully",
+    UPDATE_SUCCESS_DISPATCH: "Dispatched Successfully",
+    UPDATE_SUCCESS_RECEIVED: "Received Successfully",
+    DELETE_SUCCESS: "Deleted Successfully",
+};
+function GetProductSoldToFarmer(model) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            let productsSoldToFarmer;
+            productsSoldToFarmer = yield DbConnection_1.AppDataSource.getRepository(entities.ProductsSoldToFarmer)
+                .createQueryBuilder("productsSoldToAgent")
+                .leftJoinAndSelect("productsSoldToAgent.ProductSalesToAgent", "productSalesToAgent")
+                .leftJoinAndSelect("productSalesToAgent.Product", "products")
+                .getMany();
+            const soldProductsData = productsSoldToFarmer.map((soldProduct) => ({
+                id: soldProduct.Id,
+                productSalesToFarmer: soldProduct.ProductSalesToFarmer,
+                productId: soldProduct.ProductId,
+                quantity: soldProduct.Quantity,
+                rate: soldProduct.Rate,
+            }));
+            return {
+                status: 200,
+                message: SUCCESS_MESSAGES.SUCCESS,
+                data: soldProductsData
+            };
+        }
+        catch (err) {
+            console.log(err);
+            return {
+                status: 500,
+                message: ERROR_MESSAGES.INTERNAL_SERVER,
+                data: null
+            };
+        }
+    });
+}
+exports.GetProductSoldToFarmer = GetProductSoldToFarmer;
+function CreateProductsSoldToFarmer(req, model) {
+    var _a;
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const token = (_a = req.headers.authorization) === null || _a === void 0 ? void 0 : _a.split(" ")[1];
+            const key = process.env.TOKEN_SECRET;
+            const decode = jwt.verify(token, key);
+            const userId = decode.userId;
+            const ProductSalesToFarmer = yield DbConnection_1.AppDataSource.getRepository(entities.ProductSalesToAgent)
+                .createQueryBuilder("productSalesToAgent")
+                .where("productSalesToAgent.Id =:id", { id: model.productSalesToFarmer })
+                .getOne();
+            const product = yield DbConnection_1.AppDataSource.getRepository(entities.ProductMaster)
+                .createQueryBuilder("product")
+                .where("product.Id =:id", { id: model.productId })
+                .getOne();
+            const repository = DbConnection_1.AppDataSource.getRepository(entities.ProductsSoldToAgent);
+            const productSoldToAgent = new entities.ProductsSoldToAgent();
+            if (ProductSalesToFarmer) {
+                productSoldToAgent.ProductSalesToAgent = ProductSalesToFarmer;
+            }
+            if (product) {
+                productSoldToAgent.ProductId = product;
+            }
+            productSoldToAgent.Quantity = model.quantity;
+            productSoldToAgent.Rate = model.rate;
+            productSoldToAgent.CreatedBy = userId;
+            productSoldToAgent.CreatedAt = new Date();
+            yield repository.save(productSoldToAgent);
+            // console.log(model)
+            return {
+                status: 200,
+                message: SUCCESS_MESSAGES.SUCCESS,
+                data: null
+            };
+        }
+        catch (err) {
+            console.log(err);
+            return {
+                status: 500,
+                message: ERROR_MESSAGES.INTERNAL_SERVER,
+                data: null
+            };
+        }
+    });
+}
+exports.CreateProductsSoldToFarmer = CreateProductsSoldToFarmer;

@@ -1,0 +1,20 @@
+{
+  "files": {
+    "main.css": "/static/css/main.e82892c2.css",
+    "main.js": "/static/js/main.78138a79.js",
+    "static/js/213.fb978673.chunk.js": "/static/js/213.fb978673.chunk.js",
+    "static/js/667.9c0a513b.chunk.js": "/static/js/667.9c0a513b.chunk.js",
+    "static/js/453.fcef9d39.chunk.js": "/static/js/453.fcef9d39.chunk.js",
+    "static/media/milk-splash-blue-background.jpg": "/static/media/milk-splash-blue-background.c3cb8233d97e0c0edb22.jpg",
+    "index.html": "/index.html",
+    "main.e82892c2.css.map": "/static/css/main.e82892c2.css.map",
+    "main.78138a79.js.map": "/static/js/main.78138a79.js.map",
+    "213.fb978673.chunk.js.map": "/static/js/213.fb978673.chunk.js.map",
+    "667.9c0a513b.chunk.js.map": "/static/js/667.9c0a513b.chunk.js.map",
+    "453.fcef9d39.chunk.js.map": "/static/js/453.fcef9d39.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.e82892c2.css",
+    "static/js/main.78138a79.js"
+  ]
+}

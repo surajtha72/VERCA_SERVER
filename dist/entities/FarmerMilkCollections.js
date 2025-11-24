@@ -1,0 +1,108 @@
+"use strict";
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.FarmerMilkCollections = void 0;
+const typeorm_1 = require("typeorm");
+const User_1 = require("./User");
+const BillingCycleMaster_1 = require("./BillingCycleMaster");
+let FarmerMilkCollections = exports.FarmerMilkCollections = class FarmerMilkCollections {
+};
+__decorate([
+    (0, typeorm_1.PrimaryColumn)({ name: "id", type: "uuid" }),
+    __metadata("design:type", String)
+], FarmerMilkCollections.prototype, "Id", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: "shift", length: 20, nullable: true }),
+    __metadata("design:type", String)
+], FarmerMilkCollections.prototype, "Shift", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: "status", length: 20, nullable: true }),
+    __metadata("design:type", String)
+], FarmerMilkCollections.prototype, "Status", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: "collection_date_time", nullable: true, type: 'datetime' }),
+    __metadata("design:type", Date)
+], FarmerMilkCollections.prototype, "CollectionDateTime", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: "started_at", nullable: true, type: 'datetime' }),
+    __metadata("design:type", Date)
+], FarmerMilkCollections.prototype, "StartedAt", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: "completed_at", nullable: true, type: 'datetime' }),
+    __metadata("design:type", Date)
+], FarmerMilkCollections.prototype, "CompletedAt", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: "is_active", default: true }),
+    __metadata("design:type", Boolean)
+], FarmerMilkCollections.prototype, "IsActive", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: "milk_dispatch_id", length: 100, nullable: true }),
+    __metadata("design:type", String)
+], FarmerMilkCollections.prototype, "MilkDispatchId", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: "dispatched_quantity", type: "float", default: null }),
+    __metadata("design:type", Number)
+], FarmerMilkCollections.prototype, "DispatchedQuantity", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: "remaining_quantity", type: "float", default: null }),
+    __metadata("design:type", Number)
+], FarmerMilkCollections.prototype, "RemainingQuantity", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: "fat", type: "float", default: null }),
+    __metadata("design:type", Number)
+], FarmerMilkCollections.prototype, "Fat", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: "clr", type: "float", default: null }),
+    __metadata("design:type", Number)
+], FarmerMilkCollections.prototype, "Clr", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: "snf", type: "float", default: null }),
+    __metadata("design:type", Number)
+], FarmerMilkCollections.prototype, "Snf", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: "created_at", type: 'datetime', nullable: true }),
+    __metadata("design:type", Date)
+], FarmerMilkCollections.prototype, "CreatedAt", void 0);
+__decorate([
+    (0, typeorm_1.ManyToOne)(() => User_1.User, { nullable: true }),
+    (0, typeorm_1.JoinColumn)({ name: "created_by" }),
+    __metadata("design:type", User_1.User)
+], FarmerMilkCollections.prototype, "CreatedBy", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: "modified_at", nullable: true, type: 'datetime' }),
+    __metadata("design:type", Date)
+], FarmerMilkCollections.prototype, "ModifiedAt", void 0);
+__decorate([
+    (0, typeorm_1.ManyToOne)(() => User_1.User, { nullable: true }),
+    (0, typeorm_1.JoinColumn)({ name: "modified_by" }),
+    __metadata("design:type", User_1.User)
+], FarmerMilkCollections.prototype, "ModifiedBy", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: "deleted_at", nullable: true, type: 'datetime' }),
+    __metadata("design:type", Date)
+], FarmerMilkCollections.prototype, "DeletedAt", void 0);
+__decorate([
+    (0, typeorm_1.ManyToOne)(() => User_1.User, { nullable: true }),
+    (0, typeorm_1.JoinColumn)({ name: "deleted_by" }),
+    __metadata("design:type", User_1.User)
+], FarmerMilkCollections.prototype, "DeletedBy", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: "is_milk_bill_locked", default: false }),
+    __metadata("design:type", Boolean)
+], FarmerMilkCollections.prototype, "IsMilkBillLocked", void 0);
+__decorate([
+    (0, typeorm_1.ManyToOne)(() => BillingCycleMaster_1.BillingCycleMaster, { nullable: true }),
+    (0, typeorm_1.JoinColumn)({ name: "billing_cycle" }),
+    __metadata("design:type", BillingCycleMaster_1.BillingCycleMaster)
+], FarmerMilkCollections.prototype, "BillingCycle", void 0);
+exports.FarmerMilkCollections = FarmerMilkCollections = __decorate([
+    (0, typeorm_1.Entity)()
+], FarmerMilkCollections);

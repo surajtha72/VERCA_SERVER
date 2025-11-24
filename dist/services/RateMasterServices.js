@@ -1,0 +1,268 @@
+"use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.DeleteRateMaster = exports.UpdateRateMaster = exports.CreateRateMaster = exports.GetRateMaster = void 0;
+const DbConnection_1 = require("../db-config/DbConnection");
+const entities = __importStar(require("../entities/Context"));
+const jwt = require("jsonwebtoken");
+const dotenv_1 = __importDefault(require("dotenv"));
+dotenv_1.default.config();
+const ERROR_MESSAGES = {
+    NO_DATA: "No Data",
+    INTERNAL_SERVER: "Internal Server Error",
+};
+const SUCCESS_MESSAGES = {
+    SUCCESS: "Success",
+    ADD_SUCCESS: "Added Successfully",
+    UPDATE_SUCCESS: "Updated Successfully",
+    DELETE_SUCCESS: "Deleted Successfully",
+};
+function GetRateMaster(model) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            let rateMaster;
+            if (model.id) {
+                rateMaster = yield DbConnection_1.AppDataSource.getRepository(entities.RateMaster)
+                    .createQueryBuilder("rateMaster")
+                    .leftJoinAndSelect("rateMaster.ShiftsApplicable", "shifts")
+                    .where("rateMaster.Id = :id", { id: model.id })
+                    .andWhere("rateMaster.IsActive = :isActive", { isActive: true })
+                    .getMany();
+            }
+            else {
+                rateMaster = yield DbConnection_1.AppDataSource.getRepository(entities.RateMaster)
+                    .createQueryBuilder("rateMaster")
+                    .leftJoinAndSelect("rateMaster.ShiftsApplicable", "shifts")
+                    .where("rateMaster.IsActive = :isActive", { isActive: true })
+                    .getMany();
+            }
+            const rateMasterData = rateMaster.map((rateMaster) => ({
+                id: rateMaster.Id,
+                effectiveFrom: rateMaster.EffectiveFrom,
+                cowFatRate: rateMaster.CowFatRate,
+                cowSnfRate: rateMaster.CowSnfRate,
+                buffFatRate: rateMaster.BuffFatRate,
+                buffSnfRate: rateMaster.BuffSnfRate,
+                shiftsApplicableId: rateMaster.ShiftsApplicable.Id,
+                shiftsApplicable: rateMaster.ShiftsApplicable.Name,
+                shortDesc: rateMaster.ShortDesc,
+                fatRangeMin: rateMaster.FatRangeMin,
+                fatRangeMax: rateMaster.FatRangeMax,
+                snfRangeMin: rateMaster.SnfRangeMin,
+                snfRangeMax: rateMaster.SnfRangeMax,
+                wef: rateMaster.Wef,
+                cowMinFat: rateMaster.CowMinFat,
+                cowMinSnf: rateMaster.CowMinSnf,
+                buffMinFat: rateMaster.BuffMinFat,
+                buffMinSnf: rateMaster.BuffMinSnf,
+                seqNo: rateMaster.SeqNo
+            }));
+            return {
+                status: 200,
+                message: SUCCESS_MESSAGES.SUCCESS,
+                data: rateMasterData,
+            };
+        }
+        catch (error) {
+            console.log(error);
+            return {
+                status: 500,
+                message: ERROR_MESSAGES.INTERNAL_SERVER,
+                data: null,
+            };
+        }
+    });
+}
+exports.GetRateMaster = GetRateMaster;
+function CreateRateMaster(req, model) {
+    var _a;
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const token = (_a = req.headers.authorization) === null || _a === void 0 ? void 0 : _a.split(" ")[1];
+            const key = process.env.TOKEN_SECRET;
+            const decode = jwt.verify(token, key);
+            const userId = decode.userId;
+            const repository = DbConnection_1.AppDataSource.getRepository(entities.RateMaster);
+            const rateMaster = new entities.RateMaster();
+            rateMaster.EffectiveFrom = model.effectiveFrom || rateMaster.EffectiveFrom;
+            rateMaster.CowFatRate = model.cowFatRate || rateMaster.CowFatRate;
+            rateMaster.CowSnfRate = model.cowSnfRate || rateMaster.CowSnfRate;
+            rateMaster.BuffFatRate = model.buffFatRate || rateMaster.BuffFatRate;
+            rateMaster.BuffSnfRate = model.buffSnfRate || rateMaster.BuffSnfRate;
+            rateMaster.CowMinFat = model.cowMinFat || rateMaster.CowMinFat;
+            rateMaster.CowMinSnf = model.cowMinSnf || rateMaster.CowMinSnf;
+            rateMaster.BuffMinFat = model.buffMinFat || rateMaster.BuffMinFat;
+            rateMaster.BuffMinSnf = model.buffMinSnf || rateMaster.BuffMinSnf;
+            rateMaster.FatRangeMax = model.fatRangeMax || rateMaster.FatRangeMax;
+            rateMaster.FatRangeMin = model.fatRangeMin || rateMaster.FatRangeMin;
+            rateMaster.SnfRangeMax = model.snfRangeMax || rateMaster.SnfRangeMax;
+            rateMaster.SnfRangeMin = model.snfRangeMin || rateMaster.SnfRangeMin;
+            rateMaster.ShiftsApplicable = new entities.Shifts();
+            rateMaster.ShiftsApplicable.Id = model.shiftsApplicable || rateMaster.ShiftsApplicable.Id;
+            rateMaster.ShortDesc = model.shortDesc || rateMaster.ShortDesc;
+            rateMaster.SeqNo = model.seqNo || rateMaster.SeqNo;
+            rateMaster.CreatedAt = new Date();
+            rateMaster.CreatedBy = userId;
+            yield repository.save(rateMaster);
+            return {
+                status: 200,
+                message: SUCCESS_MESSAGES.ADD_SUCCESS,
+                data: null,
+            };
+        }
+        catch (error) {
+            console.log(error);
+            return {
+                status: 400,
+                message: ERROR_MESSAGES.INTERNAL_SERVER,
+                data: null,
+            };
+        }
+    });
+}
+exports.CreateRateMaster = CreateRateMaster;
+function UpdateRateMaster(req, model) {
+    var _a, _b;
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const token = (_a = req.headers.authorization) === null || _a === void 0 ? void 0 : _a.split(" ")[1];
+            const key = process.env.TOKEN_SECRET;
+            const decode = jwt.verify(token, key);
+            const userId = decode.userId;
+            const repository = DbConnection_1.AppDataSource.getRepository(entities.RateMaster);
+            const rateMaster = yield repository.findOne({
+                where: { Id: (_b = model.id) !== null && _b !== void 0 ? _b : 0 },
+            });
+            // console.log(model)
+            if (rateMaster) {
+                rateMaster.EffectiveFrom = model.effectiveFrom || rateMaster.EffectiveFrom;
+                rateMaster.CowFatRate = model.cowFatRate;
+                rateMaster.CowSnfRate = model.cowSnfRate;
+                rateMaster.BuffFatRate = model.buffFatRate;
+                rateMaster.BuffSnfRate = model.buffSnfRate;
+                rateMaster.ShortDesc = model.shortDesc || rateMaster.ShortDesc;
+                rateMaster.CowMinFat = model.cowMinFat || rateMaster.CowMinFat;
+                rateMaster.CowMinSnf = model.cowMinSnf || rateMaster.CowMinSnf;
+                rateMaster.BuffMinFat = model.buffMinFat || rateMaster.BuffMinFat;
+                rateMaster.BuffMinSnf = model.buffMinSnf || rateMaster.BuffMinSnf;
+                rateMaster.FatRangeMax = model.fatRangeMax || rateMaster.FatRangeMax;
+                rateMaster.FatRangeMin = model.fatRangeMin || rateMaster.FatRangeMin;
+                rateMaster.SnfRangeMax = model.snfRangeMax || rateMaster.SnfRangeMax;
+                rateMaster.SnfRangeMin = model.snfRangeMin || rateMaster.SnfRangeMin;
+                rateMaster.SeqNo = model.seqNo || rateMaster.SeqNo;
+                if (model.shiftsApplicable) {
+                    const shiftsRepository = DbConnection_1.AppDataSource.getRepository(entities.Shifts);
+                    const shiftsApplicable = yield shiftsRepository.findOne({
+                        where: { Id: model.shiftsApplicable },
+                    });
+                    if (shiftsApplicable) {
+                        rateMaster.ShiftsApplicable = shiftsApplicable;
+                    }
+                }
+                rateMaster.ModifiedAt = new Date();
+                rateMaster.ModifiedBy = userId;
+                // console.log(rateMaster.BuffSnfRate)
+                yield repository.save(rateMaster);
+                return {
+                    status: 200,
+                    message: SUCCESS_MESSAGES.UPDATE_SUCCESS,
+                    data: null,
+                };
+            }
+            else {
+                return {
+                    status: 404,
+                    message: ERROR_MESSAGES.NO_DATA,
+                    data: null,
+                };
+            }
+        }
+        catch (error) {
+            console.log(error);
+            return {
+                status: 400,
+                message: ERROR_MESSAGES.INTERNAL_SERVER,
+                data: null,
+            };
+        }
+    });
+}
+exports.UpdateRateMaster = UpdateRateMaster;
+function DeleteRateMaster(req, model) {
+    var _a, _b;
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const token = (_a = req.headers.authorization) === null || _a === void 0 ? void 0 : _a.split(" ")[1];
+            const key = process.env.TOKEN_SECRET;
+            const decode = jwt.verify(token, key);
+            const userId = decode.userId;
+            const repository = DbConnection_1.AppDataSource.getRepository(entities.RateMaster);
+            // console.log("repository: ",repository);
+            const rateMaster = yield repository.findOne({
+                where: { Id: (_b = model.id) !== null && _b !== void 0 ? _b : 0 },
+            });
+            // console.log("ratemaster: ",rateMaster,model.id);
+            if (rateMaster) {
+                rateMaster.IsActive = false;
+                rateMaster.DeletedAt = new Date();
+                rateMaster.DeletedBy = userId;
+                yield repository.save(rateMaster);
+                return {
+                    status: 200,
+                    message: SUCCESS_MESSAGES.DELETE_SUCCESS,
+                    data: null,
+                };
+            }
+            else {
+                return {
+                    status: 200,
+                    message: ERROR_MESSAGES.NO_DATA,
+                    data: null,
+                };
+            }
+        }
+        catch (error) {
+            console.log(error);
+            return {
+                status: 400,
+                message: ERROR_MESSAGES.INTERNAL_SERVER,
+                data: null,
+            };
+        }
+    });
+}
+exports.DeleteRateMaster = DeleteRateMaster;
